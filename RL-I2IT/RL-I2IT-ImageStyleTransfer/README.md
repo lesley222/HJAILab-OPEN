@@ -2,7 +2,7 @@ This is the experimental code for Image Style Transfer.
 
 # RL-INST-Image
 
-![./figures/img.png](pipline)
+![./figures/img.png](./figures/img.png)
 
 ## Requirements
 
