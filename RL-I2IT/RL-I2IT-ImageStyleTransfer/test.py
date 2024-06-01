@@ -72,6 +72,6 @@ def style_transfer(content_path, style_path, steps):
 
 
 if __name__ == '__main__':
-    content_path = './datasets/content/golden_gate.jpg'
-    style_path = './datasets/styles/blue_swirls.jpg'
+    content_path = './figures/golden_gate.jpg'
+    style_path = './figures/blue_swirls.jpg'
     style_transfer(content_path=content_path, style_path=style_path, steps=10)
