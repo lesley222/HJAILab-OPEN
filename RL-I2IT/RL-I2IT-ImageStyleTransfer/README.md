@@ -2,7 +2,7 @@ This is the experimental code for Image Style Transfer.
 
 # RL-INST-Image
 
-![imgpng](file://C:\Users\Chengming\Desktop\RL-I2IT\RL-INST\figures\img.png?msec=1717224567276)
+![./figures/img.png](pipline)
 
 ## Requirements
 
