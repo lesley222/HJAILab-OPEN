@@ -1,4 +1,6 @@
-This is the experimental code for Digits Transform
+**This is the experimental code for Digits Transform.**
+
+![digitstransform](../../Figures/app-mnist.jpg)
 
 ## Requirements
 
