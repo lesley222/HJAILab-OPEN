@@ -1,5 +1,6 @@
-This is the experimental code for Face Inpainting.
+**This is the code for Face Inpainting.**
 
+![faceinpainting](../../Figures/resultfaceip2_new.jpg)
 
 ## Requirements
 
