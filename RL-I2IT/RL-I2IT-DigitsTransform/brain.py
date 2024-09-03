@@ -71,30 +71,6 @@ class SAC:
         """
         loss = self._loss(samples, update_actor, update_vae)
 
-        self.critic1_optim.zero_grad()
-        loss['critic1'].backward()
-        self.critic1_optim.step()
-
-        self.critic2_optim.zero_grad()
-        loss['critic2'].backward()
-        self.critic2_optim.step()
-
-        if update_actor:
-            self.alpha_optim.zero_grad()
-            loss['alpha'].backward()
-            self.alpha_optim.step()
-
-            self.actor_optim.zero_grad()
-            loss['actor'].backward(retain_graph=True)
-            self.actor_optim.step()
-
-        if update_vae:
-            self.actor_optim.zero_grad()
-            self.decoder_optim.zero_grad()
-            loss['ncc'].backward()
-            self.actor_optim.step()
-            self.decoder_optim.step()
-
         self.soft_update(self.critic1_target, self.critic1)
         self.soft_update(self.critic2_target, self.critic2)
 
@@ -127,10 +103,19 @@ class SAC:
 
         critic1_loss = F.mse_loss(Q1, Q_target.detach())
         critic2_loss = F.mse_loss(Q2, Q_target.detach())
+
+        self.critic1_optim.zero_grad()
+        critic1_loss.backward()
+        self.critic1_optim.step()
+
+        self.critic2_optim.zero_grad()
+        critic2_loss.backward()
+        self.critic2_optim.step()
+        
         loss['critic1'] = critic1_loss
         loss['critic2'] = critic2_loss
 
-        ########## actor loss  ############
+        ########## actor loss  ############            
         if update_actor:
             dist, enc = self.actor(s)
 
@@ -138,6 +123,10 @@ class SAC:
             log_pi = dist.log_prob(action)
             # alpha loss
             alpha_loss = -(self.log_alpha * (log_pi.unsqueeze(1) + self.target_entropy).detach()).mean()
+            self.alpha_optim.zero_grad()
+            alpha_loss.backward()
+            self.alpha_optim.step()
+            
             loss['alpha'] = alpha_loss
 
             #############actor loss###############
@@ -145,6 +134,9 @@ class SAC:
             actor_Q2 = self.critic2(s, action)
             actor_Q = torch.min(actor_Q1, actor_Q2)
             actor_loss = (self.alpha.detach() * log_pi.unsqueeze(1) - actor_Q).mean()
+            self.actor_optim.zero_grad()
+            actor_loss.backward()
+            self.actor_optim.step()
             loss['actor'] = actor_loss
 
             ########### ncc loss ##########
@@ -154,6 +146,13 @@ class SAC:
             flow = self.decoder(latent, vae_enc)
             warped = self.stn(s[:, 1:], flow)
             ncc_loss = utils.ncc_loss(s[:, :1], warped) + 1.0*utils.gradient_loss(flow)
+            
+            self.actor_optim.zero_grad()
+            self.decoder_optim.zero_grad()
+            ncc_loss.backward()
+            self.actor_optim.step()
+            self.decoder_optim.step()
+            
             loss['ncc'] = ncc_loss
 
         return loss
